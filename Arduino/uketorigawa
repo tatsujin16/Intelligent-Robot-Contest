@@ -85,13 +85,13 @@ void order1(const geometry_msgs::Twist &message){
   const float front_back = message.linear.x;
   const float right_left = message.angular.z;
   
-  if(front_back >= 10){
+  if(front_back >= 5.0){
     Move_front();}
-  else if(front_back == -10){
+  else if(front_back <= -5.0){
     Move_back();}
-  else if(right_left == -10){
+  else if(right_left <= -5.0){
     Turn_right();}
-  else if(right_left == 10){
+  else if(right_left >= 5.0){
     Turn_left();}
   else if(front_back == 0 && right_left==0){
     Stop();}
