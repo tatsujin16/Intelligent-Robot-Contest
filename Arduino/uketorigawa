@@ -82,10 +82,10 @@ void Stop(){
   digitalWrite(8, LOW);
 }
 void order1(const geometry_msgs::Twist &message){
-  const int front_back = message.linear.x;
-  const int right_left = message.angular.z;
+  const float front_back = message.linear.x;
+  const float right_left = message.angular.z;
   
-  if(front_back == 10){
+  if(front_back >= 10){
     Move_front();}
   else if(front_back == -10){
     Move_back();}
