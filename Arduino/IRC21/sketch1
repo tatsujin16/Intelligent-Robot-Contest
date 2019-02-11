@@ -1,0 +1,349 @@
+//知能ロボコン機体(one-cannon)の制御プログラム
+/*[ライブラリ]*/
+#include<MsTimer2.h>
+#include<Servo.h>
+#include<Arduino.h>
+#include<ros.h>
+#include<geometry_msgs/Twist.h>
+#include<std_msgs/Int16.h>
+/*[グローバル変数]*/
+Servo servo1,servo2;
+ros::NodeHandle nh;
+std_msgs::Int16 wait_ball,temporary, rotation;
+ros::Publisher stand_by1("/wait_ball", &wait_ball);
+ros::Publisher stand_by2("/temporary", &temporary);
+ros::Publisher stand_by3("/rotation", &rotation);
+volatile boolean tim1msF = false;
+volatile double valR=0, valL=0;
+volatile uint8_t prevR=0, prevL=0;
+double degR=0, degL=0, radR=0, radL=0, disR=0, disL=0;
+double radian=0, pulse=0, pulse1=0, degMotor=0, degTag=0;
+const int pin5=11, pin6=12, pin7=6, pin8=7;// pin5,6 = right　pin7,8 = left
+int pin1=21, pin2=2, pin3=20, pin4=19;
+int pin11=46, pin12=42, pin13=40, pin14=38, pin15=36, pin16=34, pin17=32;
+int val1=0, val2=0, val3=0, val4=0, val5=0, val6=0, val7=0;
+int count_time=0, count=0, flag=0, judge1=0, judge2=0,judge3,judge4, n;
+int ang1,ang2;
+int theta, goal;
+int distance, degree;
+volatile double valS = 0;
+volatile uint8_t prevS = 0;
+double degS=0, pulseS=0;
+int limit=16, vacuum=15, shoot=14, enA=18, enB=3;
+int pres=A15, pressR=A9, pressL=A14;
+int countV=0, val8=0, diff=0;
+int updeg=75;
+int downdeg=141;
+int servicedeg=180;
+int init_deg1=135;
+int init_deg2=110;
+int special_degree;
+int rstd = 105;
+int lstd = 110;
+int k, label, label2, val_press, countP;
+int area, COLOR;
+int val_pressR;
+int val_pressL;
+
+/*[駆動モータ(右)のエンコーダ]*/
+void updateEncoderR(){
+  uint8_t a = digitalRead(pin1);
+  uint8_t b = digitalRead(pin2);
+  uint8_t ab = (a << 1) | b;
+  uint8_t encR  = (prevR << 2) | ab;
+  if(encR == 0b1101 || encR == 0b0100 || encR == 0b0010 || encR == 0b1011){
+    valR ++;
+  }else if(encR == 0b1110 || encR == 0b0111 || encR == 0b0001 || encR == 0b1000) {
+    valR --;
+  }
+  prevR = ab;
+}
+
+/*[駆動モータ(左)のエンコーダ]*/
+void updateEncoderL(){
+  uint8_t c = digitalRead(pin3);
+  uint8_t d = digitalRead(pin4);
+  uint8_t cd = (c << 1) | d;
+  uint8_t encL  = (prevL << 2) | cd;
+  if(encL == 0b1101 || encL == 0b0100 || encL == 0b0010 || encL == 0b1011){
+    valL ++;
+  }else if(encL == 0b1110 || encL == 0b0111 || encL == 0b0001 || encL == 0b1000) {
+    valL --;
+  }
+  prevL = cd;
+}
+
+/*[射出モータのエンコーダ]*/
+void updateEncoderS(){
+  uint8_t e = digitalRead(enA);
+  uint8_t f = digitalRead(enB);
+  uint8_t ef = (e << 1) | f;
+  uint8_t encS  = (prevS << 2) | ef;
+  if(encS == 0b1101 || encS == 0b0100 || encS == 0b0010 || encS == 0b1011){
+    valS ++;
+  } else if(encS == 0b1110 || encS == 0b0111 || encS == 0b0001 || encS == 0b1000) {
+    valS --;
+  }
+  prevS = ef;
+}
+
+/*[タイマー割込み(n秒)]*/
+void timer1mS(){
+  tim1msF = true;
+}
+int Timer(int n){
+  MsTimer2::set(1, timer1mS);
+  MsTimer2::start();
+  while(count_time <= n){
+    if(tim1msF){
+      count_time = count_time + 1;
+      tim1msF = false;
+    }
+  }
+  MsTimer2::stop();
+  tim1msF = false;
+  count_time = 0;
+  return 0;
+}
+
+void Finish_init(){
+   analogWrite(pin5,0);
+   analogWrite(pin6,0);
+   analogWrite(pin7,0);
+   analogWrite(pin8,0);  
+   judge1 = 0;
+   judge2 = 0;
+   valR = 0;
+   valL = 0;
+   pulse = 0;
+   pulse1 = 0;
+   degree = 0;
+   degMotor = 0;
+}
+
+/*[前方移動]*/
+void Go_straight(int distance){
+    radian = distance / 2.2;
+    degMotor = radian / PI * 180;
+    pulse = degMotor / 2.7;
+    while(distance >= 0){     
+      nh.spinOnce();
+      val_pressR = analogRead(pressR);
+      val_pressL = analogRead(pressL);
+      
+      if (val_pressR < 800){
+        Avoid_right(); 
+        Finish_init();
+        Timer(1000);
+        break;      
+      }       
+      else if (valR >= pulse-5 && valR <= pulse+5) {
+        analogWrite(pin5,0);
+        analogWrite(pin6,0);
+        judge1 = 1;
+      }else if (valR >= pulse+10) {
+        analogWrite(pin5,0);
+        analogWrite(pin6,rstd+15);
+      }else if (valR > pulse+5) {
+        analogWrite(pin5,0);
+        analogWrite(pin6,rstd+10);
+      }else if (valR >= pulse-50) {
+        analogWrite(pin5,rstd+10);
+        analogWrite(pin6,0);
+      }else if (valR >= pulse-100) {
+        analogWrite(pin5,rstd+15);
+        analogWrite(pin6,0);
+      }else if (valR >= pulse-200) {
+        analogWrite(pin5,rstd+20);
+        analogWrite(pin6,0);
+      }else{
+        analogWrite(pin5,rstd+25);
+        analogWrite(pin6,0);
+      }
+      
+      if (val_pressL < 800){
+        Avoid_left(); 
+        Finish_init();
+        Timer(1000);
+        break;      
+      }       
+      else if (valL >= pulse-5 && valL <= pulse+5){
+        analogWrite(pin7,0);
+        analogWrite(pin8,0);  
+        judge2 = 1;  
+      }else if (valL >= pulse+10){
+        analogWrite(pin7,0);
+        analogWrite(pin8,lstd+15);
+      }else if (valL > pulse+5) {
+        analogWrite(pin7,0);
+        analogWrite(pin8,lstd+10);
+      }else if (valL >= pulse-50) {
+        analogWrite(pin7,lstd+10);
+        analogWrite(pin8,0);
+      }else if (valL >= pulse-100) {
+        analogWrite(pin7,lstd+15);
+        analogWrite(pin8,0);
+      }else if (valL >= pulse-200) {
+        analogWrite(pin7,lstd+20);
+        analogWrite(pin8,0);
+      }else {
+        analogWrite(pin7,lstd+25);
+        analogWrite(pin8,0);
+      }
+      if(judge1 == 1 && judge2 == 1){
+       Finish_init();
+       break;
+      }
+    }
+}
+
+/*[後方移動]*/
+void Go_back(int distance){
+   radian = distance / 2.2;
+   degMotor = radian / PI * 180;
+   pulse = degMotor / 2.7;
+   while(distance < 0){
+     nh.spinOnce();
+     if (valR >= pulse-5 && valR <= pulse+5){
+     analogWrite(pin5,0);
+     analogWrite(pin6,0);
+     judge1 = 1;
+     }else if (valR <= pulse-10){
+      analogWrite(pin5,rstd+15);
+      analogWrite(pin6,0);
+     }else if (valR < pulse-5){
+      analogWrite(pin5,rstd+10);
+      analogWrite(pin6,0);
+     }else if (valR <= pulse+50){
+      analogWrite(pin5,0);
+      analogWrite(pin6,rstd+10);
+     }else if (valR <= pulse+100){
+      analogWrite(pin5,0);
+      analogWrite(pin6,rstd+15);
+     }else if (valR <= pulse+200){
+      analogWrite(pin5,0);
+      analogWrite(pin6,rstd+20);
+     }else{
+      analogWrite(pin5,0);
+      analogWrite(pin6,rstd+25);
+     }
+     if (valL >= pulse && valL <= pulse+5) {
+     analogWrite(pin7,0);
+     analogWrite(pin8,0);
+     judge2 = 1;
+     }else if (valL <= pulse-10) {
+      analogWrite(pin7,lstd+15);
+      analogWrite(pin8,0);
+     }else if (valL < pulse-5) {
+      analogWrite(pin7,lstd+10);
+      analogWrite(pin8,0);
+     }else if (valL <= pulse+50) {
+      analogWrite(pin7,0);
+      analogWrite(pin8,lstd+10);
+     }else if (valL <= pulse+100) {
+      analogWrite(pin7,0);
+      analogWrite(pin8,lstd+15);
+     }else if (valL <= pulse+200) {
+      analogWrite(pin7,0);
+      analogWrite(pin8,lstd+20);
+     }else {
+      analogWrite(pin7,0);
+      analogWrite(pin8,lstd+25);
+     }
+     if(judge1 == 1 && judge2 == 1){
+      Finish_init();
+      break;
+     }
+   }
+}
+
+
+void Turn_right(int degree){
+    degree = degree + 5;
+    degMotor = 4.3 * degree + 8.0;
+    pulse = degMotor / 2.7;
+    pulse1 = -pulse;
+  while(degree >= 0){
+    nh.spinOnce();
+    if(valR >= pulse1 -10 && valR <= pulse1 +10){
+      analogWrite(pin5,0);
+      analogWrite(pin6,0);
+      judge1 = 1;
+    }else if(valR < pulse1 -10){
+      analogWrite(pin5,rstd+80);
+      analogWrite(pin6,0);
+    }else if(valR <= pulse1 +30){   
+      analogWrite(pin5,0);
+      analogWrite(pin6,rstd+80);
+    }else{
+      analogWrite(pin5,0);
+      analogWrite(pin6,rstd+90);
+    }
+    if(valL >= pulse -10 && valL <= pulse +10){
+      analogWrite(pin7,0);
+      analogWrite(pin8,0);
+      judge2 = 1;
+    }else if(valL > pulse +10){
+      analogWrite(pin7,0);
+      analogWrite(pin8,lstd+80);
+    }else if(valL >= pulse -30){
+      analogWrite(pin7,lstd+80);
+      analogWrite(pin8,0);
+    } else{
+      analogWrite(pin7,lstd+90);
+      analogWrite(pin8,0);
+    }
+    if(judge1 == 1 && judge2 == 1){
+     Finish_init();
+     break;
+    }
+  }
+}
+
+void Turn_left(int degree){
+    degree = degree - 5;
+    degMotor = 4.3 * degree - 8.0;
+    pulse = degMotor / 2.7;
+    pulse1 = -pulse;
+  while(degree < 0){                       
+    nh.spinOnce();
+    if(valR >= pulse1 -10 && valR <= pulse1 +10){    
+      analogWrite(pin5,0);
+      analogWrite(pin6,0);
+      judge1 = 1;
+    }
+    else if(valR > pulse1 +10){       
+      analogWrite(pin5,0);
+      analogWrite(pin6,rstd+80);
+    }
+    else if(valR >= pulse1 -30){              
+      analogWrite(pin5,rstd+80);
+      analogWrite(pin6,0);
+    } 
+    else{
+      analogWrite(pin5,rstd+90);                
+      analogWrite(pin6,0);
+    }
+    if( valL >= pulse -10 && valL <= pulse +10){  
+      analogWrite(pin7,0);
+      analogWrite(pin8,0);
+      judge2 = 1;
+    }
+    else if(valL < pulse -10){       
+      analogWrite(pin7,lstd+80);
+      analogWrite(pin8,0);
+    }
+    else if(valL <= pulse +30){           
+      analogWrite(pin7,0);
+      analogWrite(pin8,lstd+80);
+    }
+    else{
+      analogWrite(pin7,0);   
+      analogWrite(pin8,lstd+90);
+    }
+    if(judge1 == 1 && judge2 == 1){
+     Finish_init();
+     break;
+    }
+  }
+}
