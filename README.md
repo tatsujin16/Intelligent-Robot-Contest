@@ -1,6 +1,16 @@
-# 知能ロボコン機体[one-cannon]の制御
-* 吸引時の首振り機能の追加
-* ゴール方向の旋回パターンを3つに
+# 知能ロボコン機体[one-cannon]の機能
+* ボールの回収はDCモータによる吸引機構で行う
+* ボールの射出はラック&ピニオン機構により、バネをモータで圧縮し射出する
+* 外部カメラからの角度・距離データをもとにエンコーダを用いて旋回・直進
+* 自己位置推定には「April Tags」を使用
+* フォトリフレクタを7個使用し、ボールエリアまでライントレース
+* 圧力センサで吸引機構のボール有無を確認
+* ボールや壁への接触はリミットセンサと圧力センサで回避
+* 吸引時の首振り機能により吸引範囲の拡大
+* ゴール方向の旋回を3パターン用意し、最短経路でゴール方向へ照準を合わせる
+
+## License
+* This repository is licensed under the BSD 3-Clause License, see LICENSE.
 
 ## Demo Movie
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/bEosERW4-E4/0.jpg)](http://www.youtube.com/watch?v=bEosERW4-E4)
