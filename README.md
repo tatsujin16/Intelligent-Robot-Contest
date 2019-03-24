@@ -10,6 +10,11 @@
 * 吸引時の首振り機能により吸引範囲の拡大
 * ゴール方向の旋回を3パターン用意し、最短経路でゴール方向へ照準を合わせる
 
+## 知能ロボットコンテストとは
+スタート時を除いて人為的な操作を一切禁止された、自律型ロボットの大会
+赤・青・黄のボール15個を、それぞれの色のゴールに入れると得点となる
+公式HP:http://www.inrof.org/irc/
+
 ## License
 * This repository is licensed under the BSD 3-Clause License, see LICENSE.
 
