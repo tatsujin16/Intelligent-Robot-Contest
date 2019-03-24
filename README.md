@@ -1,3 +1,7 @@
+# 知能ロボコン機体の制御
+* 機体名 : one-cannon
+* １つのアームでボールの吸引回収と射出を行う戦車型の自律ロボット
+
 ## Demo Movie
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/bEosERW4-E4/0.jpg)](http://www.youtube.com/watch?v=bEosERW4-E4)
 
