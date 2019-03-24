@@ -22,4 +22,4 @@
 ## Demo Movie
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/bEosERW4-E4/0.jpg)](http://www.youtube.com/watch?v=bEosERW4-E4)
 
-   [Youtubeアカウントのリンク](https://www.youtube.com/channel/UC2I3qbTQnZT58ISES_YTEEw?view_as=subscriber)
+   [Youtubeマイチャンネルのリンク](https://www.youtube.com/channel/UC2I3qbTQnZT58ISES_YTEEw?view_as=subscriber)
