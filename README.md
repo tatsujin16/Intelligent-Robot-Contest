@@ -2,6 +2,12 @@
 * 機体名 : one-cannon
 * １つのアームでボールの吸引回収と射出を行う戦車型の自律ロボット
 
+## 知能ロボットコンテストとは
+* スタート時を除いて人為的な操作を一切禁止された、自律型ロボットの大会   
+* 赤・青・黄のボール15個を、それぞれの色のゴールに入れると得点となる   
+
+    [公式HPのリンク](http://www.inrof.org/irc/)      　  
+
 ## Demo Movie
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/bEosERW4-E4/0.jpg)](http://www.youtube.com/watch?v=bEosERW4-E4)
 
@@ -18,12 +24,6 @@
 * ボールや壁への接触はリミットセンサと圧力センサで回避
 * 吸引時の首振り機能により吸引範囲の拡大
 * ゴール方向の旋回を3パターン用意し、最短経路でゴール方向へ照準を合わせる
-
-## 知能ロボットコンテストとは
-* スタート時を除いて人為的な操作を一切禁止された、自律型ロボットの大会   
-* 赤・青・黄のボール15個を、それぞれの色のゴールに入れると得点となる   
-
-    [公式HPのリンク](http://www.inrof.org/irc/)      　  
 
 ## License
 * This repository is licensed under the BSD 3-Clause License, see LICENSE.
