@@ -14,7 +14,7 @@
 * スタート時を除いて人為的な操作を一切禁止された、自律型ロボットの大会   
 * 赤・青・黄のボール15個を、それぞれの色のゴールに入れると得点となる   
 
-[公式HPのリンク](http://www.inrof.org/irc/)      　  
+                     [公式HPのリンク](http://www.inrof.org/irc/)      　  
 
 ## License
 * This repository is licensed under the BSD 3-Clause License, see LICENSE.
@@ -22,4 +22,4 @@
 ## Demo Movie
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/bEosERW4-E4/0.jpg)](http://www.youtube.com/watch?v=bEosERW4-E4)
 
-[Youtubeアカウントのリンク](https://www.youtube.com/channel/UC2I3qbTQnZT58ISES_YTEEw?view_as=subscriber)
+                     [Youtubeアカウントのリンク](https://www.youtube.com/channel/UC2I3qbTQnZT58ISES_YTEEw?view_as=subscriber)
